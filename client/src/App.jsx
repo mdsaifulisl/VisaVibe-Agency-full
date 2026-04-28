@@ -59,6 +59,8 @@ import AddFAQ from "./pages/admin/adminheroslider/AddFAQ";
 // import Privacy from "./pages/privacy/Privacy";
 // import Terms from "./pages/terms/Terms";
 import PrivateRoute from "./components/auth/PrivateRoute";
+import PublicRoute from "./components/auth/PublicRoute";
+import AdminRoute from "./components/auth/AdminRoute";
 
 function App() {
   return (
@@ -88,7 +90,7 @@ function App() {
                   <Route path="/visa-service/:id" element={<VisaDetails />} />
                   <Route path="/air-tickets" element={<AirTickets />} />
                   <Route path="/contact" element={<Contact />} />
-                  <Route path="/login" element={<Login />} />
+                  <Route path="/login" element={ <PublicRoute> <Login /> </PublicRoute>} />
                   <Route path="*" element={<ErrorPage />} />
                 </Routes>
               </main>
@@ -146,10 +148,10 @@ function App() {
 
           {/* Admins and Mods */}
           <Route path="/admin/users" element={<AdminsAndMods />} />
-          <Route path="add-admin-and-moderator" element={<AddTeamMember />} />
+          <Route path="add-admin-and-moderator" element={ <AdminRoute> <AddTeamMember /> </AdminRoute>} />
           <Route
             path="edit-admin-and-moderator/:id"
-            element={<AddTeamMember />}
+            element={<AdminRoute> <AddTeamMember /> </AdminRoute>}
           />
           <Route path="/admin/profile" element={<AdminProfile />} />{" "}
           {/* My Profile */}

@@ -14,14 +14,22 @@ import {
   FaMapMarkerAlt,
 } from "react-icons/fa";
 import useSetting from "../../../hooks/useSetting";
+import { useAuth } from "../../../hooks/useAuth";
 
 const Settings = () => {
+  // const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("general");
   const { settings, saveSettings, isUpdating } = useSetting();
 
   const [formData, setFormData] = useState({});
   const [logoFile, setLogoFile] = useState(null);
   const [previewLogo, setPreviewLogo] = useState(null);
+  const { updatePassword, psmessage, setPmessage, logout } = useAuth();
+  const [changePassword, setChangePassword] = useState({
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
 
   useEffect(() => {
     if (settings) {
@@ -56,6 +64,34 @@ const Settings = () => {
       data.append("siteLogo", logoFile);
     }
     await saveSettings(data);
+  };
+
+  const handleChangePassword = async (e) => {
+    if (e) e.preventDefault();
+    if (changePassword.newPassword !== changePassword.confirmPassword) {
+      setPmessage("New Password and Confirm Password do not match");
+      return;
+    }
+    const result = await updatePassword(
+      changePassword.oldPassword,
+      changePassword.newPassword,
+    );
+
+    if (result.success) {
+      setChangePassword({
+        oldPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      await logout();
+    }
+  };
+
+  const hendleChangePasswordinput = (e) => {
+    setChangePassword({
+      ...changePassword,
+      [e.target.name]: e.target.value,
+    });
   };
 
   if (!settings)
@@ -361,12 +397,20 @@ const Settings = () => {
                 <p className="text-muted small mb-4">
                   Update your administrative credentials here.
                 </p>
+                {psmessage && (
+                  <div className="alert alert-danger" role="alert">
+                    {psmessage}
+                  </div>
+                )}
                 <div className="row g-3">
                   <div className="col-md-6">
                     <label className="small fw-bold mb-1">
                       Current Password
                     </label>
                     <input
+                      name="oldPassword"
+                      value={setChangePassword.oldPassword}
+                      onChange={hendleChangePasswordinput}
                       type="password"
                       placeholder="••••••••"
                       className="form-control bg-light border-0 py-2"
@@ -375,6 +419,9 @@ const Settings = () => {
                   <div className="col-md-6">
                     <label className="small fw-bold mb-1">New Password</label>
                     <input
+                      name="newPassword"
+                      value={setChangePassword.newPassword}
+                      onChange={hendleChangePasswordinput}
                       type="password"
                       placeholder="Enter new password"
                       className="form-control bg-light border-0 py-2"
@@ -385,6 +432,9 @@ const Settings = () => {
                       Confirm New Password
                     </label>
                     <input
+                      name="confirmPassword"
+                      value={setChangePassword.confirmPassword}
+                      onChange={hendleChangePasswordinput}
                       type="password"
                       placeholder="Confirm new password"
                       className="form-control bg-light border-0 py-2"
@@ -398,6 +448,7 @@ const Settings = () => {
             <div className="mt-5 border-top pt-4 text-end">
               {activeTab === "security" ? (
                 <button
+                  onClick={handleChangePassword}
                   className="btn text-white px-5 py-2 rounded-pill shadow-sm d-inline-flex align-items-center gap-2"
                   style={{
                     backgroundColor: "var(--secondary-coral)",

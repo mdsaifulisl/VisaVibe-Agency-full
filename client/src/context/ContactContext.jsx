@@ -13,17 +13,20 @@ export const ContactProvider = ({ children }) => {
 
   // ১. সব মেসেজ লোড করা
   const fetchMessages = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      return;
+    }
     setLoading(true);
     try {
       const res = await getAllMessages();
       if (res.success) {
         setMessages(res.data);
-        // আনরিড মেসেজ সংখ্যা গণনা করা
         const count = res.data.filter(m => m.status === 'unread').length;
         setUnreadCount(count);
       }
     } catch (err) {
-      console.error("Failed to load messages:", err);
+      console.error("Failed to load messages:", err.message);
     } finally {
       setLoading(false);
     }

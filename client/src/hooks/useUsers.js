@@ -7,4 +7,4 @@ export const useUsers = () => {
         throw new Error("useUsers must be used within a UserProvider");
     }
     return context;
-};
+}; 

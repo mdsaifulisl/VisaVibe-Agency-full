@@ -10,17 +10,25 @@ import {
   FaFacebookF,
   FaTwitter,
   FaInstagram,
+  FaSignOutAlt,
 } from "react-icons/fa";
 import "../../assets/style/header.css";
 import useSetting from "../../hooks/useSetting";
 import { useAuth } from "../../hooks/useAuth";
 
+
 const Header = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [isMobile, setIsMobile] = useState(false);
   const [showTopHeader, setShowTopHeader] = useState(true);
 
   const { settings } = useSetting();
+
+  const handleLogout = async () => {
+    
+    await logout();
+    window.location.reload();
+  };
 
   // মেনু আইটেমগুলো এক জায়গায় রাখা হলো
 const navLinks = [
@@ -123,24 +131,53 @@ const navLinks = [
               </NavLink>
             ))}
 
-            <NavLink
+            {user ? (
+              <button
+          
+              className="nav-item d-block d-lg-none text-danger border-0 p-1 left-0"
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+            ):(
+              <NavLink
               to="/login"
               className="nav-item d-block d-lg-none"
               onClick={() => setIsMobile(false)}
             >
               Login
             </NavLink>
+            )}
+            
           </nav>
 
           {/* Right Actions */}
           <div className="header-actions d-flex align-items-center">
-            <Link
+            {user ? (
+              <button 
+              onClick={handleLogout}
+              className="login-link d-none d-lg-flex align-items-center gap-1 border-0 "
+            >
+              <FaSignOutAlt />
+              <span>Logout</span>
+            </button>
+              
+            ) : (
+              <Link
               to="/login"
               className="login-link d-none d-lg-flex align-items-center gap-1"
             >
               <FaUser />
               <span>Login</span>
             </Link>
+            )}
+            {/* <Link
+              to="/login"
+              className="login-link d-none d-lg-flex align-items-center gap-1"
+            >
+              <FaUser />
+              <span>Login</span>
+            </Link> */}
 
             <button
               className="mobile-toggle-btn d-lg-none border-0 bg-transparent"

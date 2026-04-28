@@ -5,7 +5,7 @@ const axiosInstance = axios.create({
     timeout: 10000,
 });
 
-// যদি ভবিষ্যতে JWT টোকেন ব্যবহার করেন, তবে এখানে ইন্টারসেপ্টর যোগ করা যাবে
+// Request Interceptor
 axiosInstance.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
@@ -15,6 +15,19 @@ axiosInstance.interceptors.request.use(
         return config;
     },
     (error) => {
+        return Promise.reject(error);
+    }
+);
+
+// --- এই অংশটি আপনার কোডে মিসিং ছিল ---
+// Response Interceptor
+axiosInstance.interceptors.response.use(
+    (response) => {
+        
+        return response;
+    },
+    (error) => {
+        
         return Promise.reject(error);
     }
 );

@@ -4,6 +4,7 @@ import { useAuth } from "../../hooks/useAuth";
 
 const AdminNavbar = ({ toggleSidebar }) => {
   const { user } = useAuth();
+  console.log(user)
 
   // ইউজার ডাটা না আসা পর্যন্ত বা ইউজার না থাকলে একটি সেফ চেক
   const userName = user?.name || "Admin";

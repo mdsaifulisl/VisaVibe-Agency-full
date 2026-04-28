@@ -5,7 +5,7 @@ import { useAuth } from '../../hooks/useAuth';
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ email: '', password: '' });
-  const { login, massage } = useAuth();
+  const { login, message } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -16,7 +16,7 @@ const Login = () => {
     }
     
   };
-
+ 
   return (
     <div className="login-wrapper py-5 d-flex align-items-center justify-content-center bg-light" style={{ minHeight: '90vh' }}>
       <div className="container">
@@ -36,7 +36,7 @@ const Login = () => {
 
                 <form onSubmit={handleLogin}>
                   {/* Email Input */}
-                  {massage && <div className="alert alert-danger">{massage}</div>}
+                  {message && <div className="alert alert-danger">{message}</div>}
                   <div className="mb-3">
                     <label className="form-label small fw-bold text-secondary">Email Address</label>
                     <div className="input-group">

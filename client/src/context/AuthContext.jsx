@@ -7,7 +7,8 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [message, setMessage] = useState(""); // বানান ঠিক করা হয়েছে (message)
+    const [message, setMessage] = useState(""); 
+    const [psmessage, setPmessage] = useState("");
 
     // ১. ইউজার ভেরিফাই করার ফাংশন
     const verifyUser = useCallback(async () => {
@@ -67,8 +68,39 @@ export const AuthProvider = ({ children }) => {
         delete axiosInstance.defaults.headers.common["Authorization"];
     };
 
+
+
+    // AuthContext.jsx এর ভেতরে
+const updatePassword = async (oldPassword, newPassword) => {
+    setPmessage(""); 
+    try {
+        const res = await axiosInstance.put("/users/change-password", { 
+            oldPassword, 
+            newPassword 
+        });
+        
+        // যদি সাকসেসফুল হয়, মেসেজ স্টেটে সাকসেস মেসেজটি সেট করে দিতে পারেন
+        if (res.data.success) {
+            setPmessage(res.data.message); 
+        }
+        
+        return { success: true, message: res.data.message };
+    } catch (err) {
+        const errorMsg = err.response?.data?.message || "Password change failed";
+        setPmessage(errorMsg); 
+        return { 
+            success: false, 
+            message: errorMsg 
+        };
+    }
+};
+
+
+
+
+
     return (
-        <AuthContext.Provider value={{ user, login, logout, loading, message }}>
+        <AuthContext.Provider value={{ user, login, logout, updatePassword, loading, message, psmessage, setPmessage }}>
             {children}
         </AuthContext.Provider>
     );

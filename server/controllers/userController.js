@@ -9,14 +9,12 @@ const BASE_URL = process.env.BASE_URL || "http://localhost:5000";
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    // ১. ইউজার আছে কিনা চেক করা
+    
     const user = await User.findOne({ where: { email } });
     if (!user) {
       return res.status(404).json({ success: false, message: "no user found" });
     }
 
-    // ২. স্ট্যাটাস একটিভ কিনা চেক করা
     if (user.status !== "Active") {
       return res
         .status(403)
@@ -38,6 +36,7 @@ exports.loginUser = async (req, res) => {
       { expiresIn: "1d" },
     );
 
+    
     // ৫. কুকিতে বা রেসপন্সে টোকেন পাঠানো
     res.status(200).json({
       success: true,
@@ -67,6 +66,11 @@ exports.getMe = async (req, res) => {
         
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        const imgurl = user.image;
+        if (imgurl) {
+            user.image = `${BASE_URL}${imgurl}`;
         }
 
         res.json({ success: true, user });
@@ -145,7 +149,7 @@ exports.updateUser = async (req, res) => {
     const updateData = { ...req.body };
     const folder = req.uploadFolder || "users";
 
-    if (
+    if ( 
       updateData.password &&
       updateData.password !== "" &&
       updateData.password !== "null"
@@ -180,6 +184,43 @@ exports.updateUser = async (req, res) => {
   } catch (error) {
     if (req.file) fs.unlinkSync(req.file.path);
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.changePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const userId = req.user.id; // authMiddleware 
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found!" });
+    }
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ 
+        success: false, 
+        message: "old password is incorrect!" 
+      });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "password changed successfully!",
+    });
+
+  } catch (error) {
+    console.error("Change Password Error:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "সার্ভারে সমস্যা হয়েছে, আবার চেষ্টা করুন।" 
+    });
   }
 };
 
