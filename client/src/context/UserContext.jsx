@@ -3,7 +3,7 @@ import {
   getAllUsers as fetchAllUsersApi,
   updateUser as updateUserApi,
   createUser as createUserApi,
-  deleteUser as deleteUserApi,
+  deleteUser as deleteUserApi, 
   getUserById as getUserByIdApi,
 } from "../api/userService";
 
@@ -14,7 +14,8 @@ export const UserProvider = ({ children }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
- 
+  const [message, setMessage] = useState("");
+
   const fetchUsers = useCallback(async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -34,23 +35,29 @@ export const UserProvider = ({ children }) => {
     }
   }, []);
 
-  
   const fetchUserById = async (id) => {
     setLoading(true);
     try {
       const response = await getUserByIdApi(id);
       if (response.success) {
         setSelectedUser(response.data);
+
         return response.data;
       }
     } catch (err) {
       console.error("Fetch User Error:", err);
+
+      setMessage(err.message);
+      setTimeout(() => {
+        setMessage("");
+      }, 3000);
+
       return null;
     } finally {
       setLoading(false);
     }
   };
- 
+
   const handleUpdateUser = async (id, formData) => {
     try {
       const response = await updateUserApi(id, formData);
@@ -61,6 +68,10 @@ export const UserProvider = ({ children }) => {
             user.id === Number(id) ? response.data : user,
           ),
         );
+        setMessage(response.message);
+        setTimeout(() => {
+          setMessage("");
+        }, 3000);
         return { success: true };
       }
     } catch (err) {
@@ -74,6 +85,10 @@ export const UserProvider = ({ children }) => {
       if (response.success) {
         // নতুন মেম্বারকে লিস্টের সবার উপরে যোগ করা
         setUsers((prevUsers) => [response.data, ...prevUsers]);
+        setMessage(response.message);
+        setTimeout(() => {
+          setMessage("");
+        }, 3000);
         return { success: true };
       }
     } catch (err) {
@@ -82,14 +97,17 @@ export const UserProvider = ({ children }) => {
   };
 
   const handleDeleteUser = async (id) => {
-    if (!window.confirm("আপনি কি নিশ্চিত যে এই মেম্বারটিকে ডিলিট করতে চান?"))
-      return;
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
 
     try {
       const response = await deleteUserApi(id);
       if (response.success) {
         // স্টেট থেকে ওই আইডি বাদ দিয়ে দেওয়া
         setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
+        setMessage(response.message);
+        setTimeout(() => {
+          setMessage("");
+        }, 3000);
         return { success: true };
       }
     } catch (err) {
@@ -110,9 +128,10 @@ export const UserProvider = ({ children }) => {
       value={{
         users,
         loading,
-        selectedUser, 
+        selectedUser,
+        message,
         fetchUsers,
-        fetchUserById, 
+        fetchUserById,
         handleUpdateUser,
         handleAddUser,
         handleDeleteUser,

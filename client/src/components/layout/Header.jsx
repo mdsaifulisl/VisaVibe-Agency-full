@@ -59,7 +59,9 @@ const navLinks = [
 
       <Helmet>
         <title>{settings?.siteName || "Expert Travel"}</title>
-        
+        {settings?.siteFavicon && (
+          <link rel="icon" type="image/png" href={settings?.siteFavicon || "/vite.svg"} />
+        )}
       </Helmet>
 
       {/* Top Header */}

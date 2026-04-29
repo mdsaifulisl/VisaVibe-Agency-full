@@ -8,7 +8,7 @@ const AddTeamMember = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEditMode = Boolean(id);
-  const { handleAddUser, handleUpdateUser, fetchUserById, loading } = useUsers();
+  const { handleAddUser, handleUpdateUser, fetchUserById, loading, message, fetchUsers } = useUsers();
 
   const [selectedImage, setSelectedImage] = useState(null);
   const [formData, setFormData] = useState({
@@ -92,6 +92,7 @@ const AddTeamMember = () => {
 
     if (result.success) {
       navigate("/admin/users");
+      await fetchUsers();
     } else {
       alert(result.message || "Error saving data");
     }
@@ -113,6 +114,7 @@ const AddTeamMember = () => {
       </div>
 
       <form onSubmit={handleSubmit}>
+        { message && <div className="alert alert-success">{message}</div> }
         <div className="row g-4">
           <div className="col-lg-8">
             <div className="card border-0 shadow-sm rounded-4 p-4 mb-4">

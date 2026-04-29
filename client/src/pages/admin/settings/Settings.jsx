@@ -31,13 +31,18 @@ const Settings = () => {
     confirmPassword: "",
   });
 
-  useEffect(() => {
-    if (settings) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFormData(settings);
-      setPreviewLogo(settings.siteLogo);
-    }
-  }, [settings]);
+ const [faviconFile, setFaviconFile] = useState(null); 
+ const [previewFavicon, setPreviewFavicon] = useState(null);
+
+
+useEffect(() => {
+  if (settings) {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setFormData(settings);
+    setPreviewLogo(settings.siteLogo);
+    setPreviewFavicon(settings.siteFavicon); 
+  }
+}, [settings]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -55,16 +60,38 @@ const Settings = () => {
     }
   };
 
-  const handleSave = async () => {
-    const data = new FormData();
-    Object.keys(formData).forEach((key) => {
+const handleFaviconChange = (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    setFaviconFile(file); 
+    setPreviewFavicon(URL.createObjectURL(file)); 
+  }
+};
+
+// ৩. সেটিংস সেভ করার সময় (খুবই গুরুত্বপূর্ণ)
+const handleSave = async () => {
+  const data = new FormData();
+  
+ 
+  Object.keys(formData).forEach((key) => {
+   
+    if (key !== "siteLogo" && key !== "siteFavicon") {
       data.append(key, formData[key]);
-    });
-    if (logoFile) {
-      data.append("siteLogo", logoFile);
     }
-    await saveSettings(data);
-  };
+  });
+
+  
+  if (logoFile) {
+    data.append("siteLogo", logoFile);
+  }
+
+  
+  if (faviconFile) {
+    data.append("siteFavicon", faviconFile); 
+  }
+
+  await saveSettings(data);
+};
 
   const handleChangePassword = async (e) => {
     if (e) e.preventDefault();
@@ -216,6 +243,49 @@ const Settings = () => {
                       </label>
                     </div>
                   </div>
+
+                  {/* Upload Favicon (Logo Upload এর ঠিক নিচে এটি বসাতে পারেন) */}
+                  <div className="col-12 mt-3">
+                    <label className="small fw-bold mb-2">
+                      Upload Site Favicon (Icon)
+                    </label>
+                    <div className="border border-dashed rounded-3 p-4 text-center bg-light">
+                      {previewFavicon ? (
+                        <img
+                          src={previewFavicon}
+                          alt="Favicon Preview"
+                          className="mb-2 rounded"
+                          style={{
+                            maxHeight: "32px",
+                            width: "32px",
+                            objectFit: "contain",
+                          }}
+                        />
+                      ) : (
+                        <div className="text-muted mb-2">
+                          {/* favicon এর জন্য একটি ছোট আইকন বা টেক্সট */}
+                          <small>No Icon Selected</small>
+                        </div>
+                      )}
+                      <p className="small text-muted mb-0">
+                        Recommended size: 32x32px (.ico or .png)
+                      </p>
+                      <input
+                        type="file"
+                        hidden
+                        id="faviconUpload"
+                        onChange={handleFaviconChange} // এই ফাংশনটি হ্যান্ডলার হিসেবে লিখবেন
+                        accept="image/x-icon, image/png, image/jpeg"
+                      />
+                      <label
+                        htmlFor="faviconUpload"
+                        className="btn btn-sm btn-outline-dark mt-2 px-4 rounded-pill"
+                      >
+                        Change Favicon
+                      </label>
+                    </div>
+                  </div>
+
                   <div className="col-12 mt-4">
                     <div className="form-check form-switch p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
                       <div>

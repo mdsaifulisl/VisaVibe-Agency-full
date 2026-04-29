@@ -30,7 +30,7 @@ export const SettingProvider = ({ children }) => {
         try {
             const res = await updateSettings(formData);
             if (res && res.success) {
-                setSettings(res.data); // গ্লোবাল স্টেট আপডেট
+                setSettings(res.data); 
                 toast.success(res.message || "Settings updated successfully!");
                 return res;
             }

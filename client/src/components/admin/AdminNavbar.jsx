@@ -13,10 +13,13 @@ const AdminNavbar = ({ toggleSidebar }) => {
   const userRole = user?.role || "Staff";
   const userImage = user?.image; // যদি ডাটাবেসে ইমেজ থাকে
 
-  return (
+  return ( 
     <>
       <Helmet>
         <title>{settings?.siteName || "Expert Travel"}</title>
+        {settings?.siteFavicon && (
+          <link rel="icon" type="image/png" href={settings?.siteFavicon || "/vite.svg"} />
+        )}
       </Helmet>
 
       <nav className="navbar navbar-light bg-white shadow-sm px-3 py-2 sticky-top">
