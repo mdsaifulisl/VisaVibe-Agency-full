@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:5000/api', 
-    //  baseURL: '/api', 
+    // baseURL: 'http://localhost:5000/api', 
+     baseURL: '/api', 
     timeout: 10000,
 });
 
@@ -20,7 +20,6 @@ axiosInstance.interceptors.request.use(
     }
 );
 
-// --- এই অংশটি আপনার কোডে মিসিং ছিল ---
 // Response Interceptor
 axiosInstance.interceptors.response.use(
     (response) => {
