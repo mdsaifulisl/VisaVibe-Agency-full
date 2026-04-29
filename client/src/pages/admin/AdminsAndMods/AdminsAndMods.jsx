@@ -13,7 +13,7 @@ import { useAuth } from "../../../hooks/useAuth";
 
 const AdminsAndMods = () => {
   const { users, handleDeleteUser } = useUsers(); 
-  const { user: loggedInUser } = useAuth();
+  const { user: loggedInUser, logout } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
 
   // সার্চ ফিল্টারিং লজিক
@@ -21,6 +21,18 @@ const AdminsAndMods = () => {
     user.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
     user.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+
+
+  const delateUser = async (userId) => {
+    if ( userId === loggedInUser.id ) {
+      await handleDeleteUser(userId);
+      logout();
+    } else {
+      await handleDeleteUser(userId);
+    }
+
+  };
 
   return (
     <div className="animate__animated animate__fadeIn pb-5">
@@ -134,7 +146,7 @@ const AdminsAndMods = () => {
                               <FaEdit style={{ color: "var(--primary-teal)" }} />
                             </Link>
                             <button 
-                              onClick={() => handleDeleteUser(user.id)}
+                              onClick={() => delateUser(user.id)}
                               className="btn btn-sm btn-outline-light border shadow-sm rounded-circle p-2 d-flex align-items-center justify-content-center"
                               style={{ width: "32px", height: "32px" }}
                             >

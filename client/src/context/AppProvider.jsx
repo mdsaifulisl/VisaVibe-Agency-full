@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React from "react";
+import { HelmetProvider } from 'react-helmet-async';
 import { TourProvider } from "./TourContext";
 import { DestinationProvider } from "./DestinationContext";
 import { VisaProvider } from "./VisaContext";
@@ -16,6 +17,7 @@ import { AuthProvider } from "./AuthContext";
 const AppProvider = ({ children }) => {
   // All providers in an array for easy management and nesting
   const providers = [
+    HelmetProvider,
     VisaProvider,
     TourProvider,
     DestinationProvider,

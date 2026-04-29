@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import {
   FaBars,
   FaTimes,
@@ -17,12 +18,13 @@ import useSetting from "../../hooks/useSetting";
 import { useAuth } from "../../hooks/useAuth";
 
 
+
 const Header = () => {
   const { user, logout } = useAuth();
   const [isMobile, setIsMobile] = useState(false);
   const [showTopHeader, setShowTopHeader] = useState(true);
 
-  const { settings } = useSetting();
+  const { settings } = useSetting(); 
 
   const handleLogout = async () => {
     
@@ -54,6 +56,12 @@ const navLinks = [
 
   return (
     <>
+
+      <Helmet>
+        <title>{settings?.siteName || "Expert Travel"}</title>
+        
+      </Helmet>
+
       {/* Top Header */}
       <div
         className={`top-header ${!showTopHeader ? "hide-top" : ""} d-none d-lg-block`}
@@ -171,13 +179,7 @@ const navLinks = [
               <span>Login</span>
             </Link>
             )}
-            {/* <Link
-              to="/login"
-              className="login-link d-none d-lg-flex align-items-center gap-1"
-            >
-              <FaUser />
-              <span>Login</span>
-            </Link> */}
+            
 
             <button
               className="mobile-toggle-btn d-lg-none border-0 bg-transparent"
