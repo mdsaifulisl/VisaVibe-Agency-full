@@ -14,6 +14,7 @@ const Setting = sequelize.define(
     footerText: { type: DataTypes.STRING },
     maintenanceMode: { type: DataTypes.BOOLEAN, defaultValue: false },
     siteLogo: { type: DataTypes.STRING, allowNull: true },
+    siteFavicon: { type: DataTypes.STRING, allowNull: true },
 
     // Section 2: Contact & Social Settings
     siteEmail: { type: DataTypes.STRING },

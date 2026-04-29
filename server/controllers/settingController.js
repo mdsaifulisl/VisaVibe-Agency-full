@@ -5,10 +5,12 @@ const path = require('path');
 const BASE_URL = process.env.BASE_URL || "http://localhost:5000";
 
 // ১. সেটিংস ডাটা গেট করা
+// settingController.js
+
+// ১. সেটিংস গেট করার সময় ফেভিকন URL যোগ করুন
 exports.getSettings = async (req, res) => {
     try {
         let settings = await Setting.findOne();
-
         if (!settings) {
             settings = await Setting.create({
                 siteName: "Travel Admin",
@@ -16,90 +18,74 @@ exports.getSettings = async (req, res) => {
             });
         }
 
-        // লোগোর ফুল URL তৈরি করা
         let settingsData = settings.toJSON();
+        // লোগো URL
         if (settingsData.siteLogo) {
             settingsData.siteLogo = `${BASE_URL}${settingsData.siteLogo}`;
         }
+        // ফেভিকন URL (নতুন)
+        if (settingsData.siteFavicon) {
+            settingsData.siteFavicon = `${BASE_URL}${settingsData.siteFavicon}`;
+        }
 
         res.status(200).json({ success: true, data: settingsData });
-    } catch (error) { 
-        res.status(500).json({ 
-            success: false,
-            message: "Settings আনতে সমস্যা হয়েছে", 
-            error: error.message 
-        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
-// ২. সেটিংস এবং লোগো আপডেট করা
+// ২. আপডেট ফাংশন (প্রধান পরিবর্তন এখানে)
 exports.updateSettings = async (req, res) => {
     try {
         let settings = await Setting.findOne();
+        const folder = req.uploadFolder || "Site_Settings";
+        const updateData = { ...req.body };
 
-        const {
-            siteName, footerText, maintenanceMode, siteEmail,
-            phone, address, facebook, instagram, linkedin,
-            whatsapp, metaTitle, metaDescription
-        } = req.body;
+        // Boolean কনভার্ট করা (যেহেতু FormData থেকে স্ট্রিং আসে)
+        updateData.maintenanceMode = req.body.maintenanceMode === 'true' || req.body.maintenanceMode === true;
 
-        const updateData = {
-            siteName,
-            footerText,
-            maintenanceMode: maintenanceMode === 'true' || maintenanceMode === true,
-            siteEmail,
-            phone,
-            address,
-            facebook,
-            instagram,
-            linkedin,
-            whatsapp,
-            metaTitle,
-            metaDescription
-        };
-
-        // নতুন ফাইল আপলোড হলে
-        if (req.file) {
-            const folder = req.uploadFolder || "Site_Settings";
-            
-            // [Optional] আগের লোগো ফাইলটি সার্ভার থেকে ডিলিট করা
-            if (settings && settings.siteLogo) {
-                const oldPath = path.join(__dirname, '..', settings.siteLogo);
-                if (fs.existsSync(oldPath)) {
-                    fs.unlinkSync(oldPath);
+        // ফাইল হ্যান্ডলিং (siteLogo এবং siteFavicon)
+        if (req.files) {
+            // ১. সাইট লোগো প্রসেস করা
+            if (req.files['siteLogo']) {
+                const logoFile = req.files['siteLogo'][0];
+                // আগের লোগো ডিলিট করা (অপশনাল)
+                if (settings && settings.siteLogo) {
+                    const oldLogoPath = path.join(__dirname, '..', settings.siteLogo);
+                    if (fs.existsSync(oldLogoPath)) fs.unlinkSync(oldLogoPath);
                 }
+                updateData.siteLogo = `/uploads/${folder}/${logoFile.filename}`;
             }
 
-            updateData.siteLogo = `/uploads/${folder}/${req.file.filename}`;
+            // ২. সাইট ফেভিকন প্রসেস করা
+            if (req.files['siteFavicon']) {
+                const faviconFile = req.files['siteFavicon'][0];
+                // আগের ফেভিকন ডিলিট করা
+                if (settings && settings.siteFavicon) {
+                    const oldFavPath = path.join(__dirname, '..', settings.siteFavicon);
+                    if (fs.existsSync(oldFavPath)) fs.unlinkSync(oldFavPath);
+                }
+                updateData.siteFavicon = `/uploads/${folder}/${faviconFile.filename}`;
+            }
         }
 
         if (settings) {
             await settings.update(updateData);
-            
-            // রিটার্ন করার সময় ফুল URL পাঠানো
-            let updatedResult = settings.toJSON();
-            if (updatedResult.siteLogo) {
-                updatedResult.siteLogo = `${BASE_URL}${updatedResult.siteLogo}`;
-            }
-
-            res.status(200).json({ 
-                success: true,
-                message: "সব সেটিংস সাকসেসফুলি আপডেট হয়েছে", 
-                data: updatedResult 
-            });
         } else {
-            const newSettings = await Setting.create(updateData);
-            res.status(201).json({ 
-                success: true,
-                message: "সেটিংস তৈরি এবং সেভ হয়েছে", 
-                data: newSettings 
-            });
+            settings = await Setting.create(updateData);
         }
-    } catch (error) {
-        res.status(500).json({ 
-            success: false,
-            message: "সেটিংস আপডেট করতে ব্যর্থ হয়েছে", 
-            error: error.message 
+
+        // রিটার্ন করার সময় ফুল URL পাঠানো
+        let updatedResult = settings.toJSON();
+        if (updatedResult.siteLogo) updatedResult.siteLogo = `${BASE_URL}${updatedResult.siteLogo}`;
+        if (updatedResult.siteFavicon) updatedResult.siteFavicon = `${BASE_URL}${updatedResult.siteFavicon}`;
+
+        res.status(200).json({ 
+            success: true, 
+            message: "update successfully", 
+            data: updatedResult 
         });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "update failed", error: error.message });
     }
 };

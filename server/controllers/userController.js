@@ -172,7 +172,7 @@ exports.updateUser = async (req, res) => {
         }
       }
       updateData.image = newImagePath;
-    }
+    } 
 
     await user.update(updateData);
 
@@ -233,7 +233,7 @@ exports.getAllUsers = async (req, res) => {
       .status(200)
       .json({
         success: true,
-        massage: "সফলভাবে মেম্বার পাওয়া হয়েছে!",
+        massage: "mamber list",
         data: formattedUsers,
       });
   } catch (error) {

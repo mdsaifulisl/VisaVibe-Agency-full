@@ -11,6 +11,27 @@ const setSettingsFolder = (req, res, next) => {
 
 
 router.get('/', settingController.getSettings);
-router.put('/update', protect, setSettingsFolder, upload.single('siteLogo'), settingController.updateSettings);
+
+
+// router.js
+router.put(
+  '/update', 
+  protect, 
+  setSettingsFolder, 
+  upload.fields([
+    { name: 'siteLogo', maxCount: 1 },
+    { name: 'siteFavicon', maxCount: 1 }
+  ]),
+  settingController.updateSettings
+);
+
+// router.put('/update', protect, setSettingsFolder, upload.single('siteLogo'), settingController.updateSettings);
 
 module.exports = router;
+
+
+
+
+
+
+
